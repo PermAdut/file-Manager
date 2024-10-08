@@ -14,6 +14,7 @@ process.stdin.on("data", async (data) => {
   switch (command) {
     case ".exit":
       process.stdin.destroy();
+      
       break;
     case "os":
       await handleOsCommand(params);
