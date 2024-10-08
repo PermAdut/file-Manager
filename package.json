@@ -1,0 +1,21 @@
+{
+  "name": "file-manager",
+  "version": "1.0.0",
+  "description": "CLI file Manager node js",
+  "main": "index.js",
+  "type":"module",
+  "scripts": {
+    "test": "node index.js",
+    "start": "node index.js -- --username=PermAdut"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PermAdut/file-Manager.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/PermAdut/file-Manager/issues"
+  },
+  "homepage": "https://github.com/PermAdut/file-Manager#readme"
+}
