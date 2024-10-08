@@ -3,7 +3,7 @@ import os from "node:os";
 const args = process.argv.slice(2)
 const __filename = os.homedir;
 const userName = getUserName();
-
+const hashAlgh = "sha256";
 
 
 function getUserName(){
@@ -12,4 +12,4 @@ function getUserName(){
     }
 }
 
-export {userName, __filename}
+export {userName, __filename, hashAlgh}

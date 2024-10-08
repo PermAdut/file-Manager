@@ -8,7 +8,7 @@ const eol = Array.from(os.EOL).map(el =>
 const architechture = os.arch();
 const username = os.userInfo().username;
 
-function handleOsCommand(...params){
+async function handleOsCommand(...params){
     const args = params[0];
     for(let i = 0; i < args.length; i++){
         switch(args[i]){
