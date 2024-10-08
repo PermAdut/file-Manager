@@ -8,6 +8,7 @@ const hashAlgh = "sha256";
 
 function getUserName(){
     if(args[1].startsWith('--username')){
+        
         return args[1].slice(args[1].indexOf('=') + 1)
     }
 }
