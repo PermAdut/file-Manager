@@ -1,6 +1,6 @@
 import path from "node:path";
 import fsPromises from "node:fs/promises";
-import { operatingSystem } from "./constants";
+import { operatingSystem } from "./constants.js";
 
 async function handleLSCommand(dirPath){
     const dir = await fsPromises.opendir(dirPath);
@@ -19,13 +19,22 @@ async function handleLSCommand(dirPath){
 }
 
 async function handleUPCommand(relPath){
-    return Promise((res) => {
+    return new Promise((res) => {
         const dirs = relPath.split(path.sep);
         if(operatingSystem == 'Windows_NT'){
-
-        } else if(operatingSystem == 'Linux') {
-
-        } else {}
+            if(dirs.length == 1){
+                res(relPath)
+            } else {
+                relPath = dirs.slice(0,-1).join(path.sep);
+            }
+        } else if(operatingSystem == 'Linux' || operatingSystem == 'Darwin') {
+            if(dirs.length == 0){
+                res(path.sep)
+            } else {
+                relPath = dirs.slice(0,-1).join(path.sep);
+            }
+        }
+        res(relPath)
     })
 }
 

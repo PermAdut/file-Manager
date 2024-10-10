@@ -11,7 +11,6 @@ process.stdout.write(`You are currently in ${curDir}` + "\n");
 process.stdin.on("data", async (data) => {
   const params = data.toString().trim().split(" ").slice(1);
   const command = data.toString().trim().split(" ")[0];
-  console.log(operatingSystem);
   switch (command) {
     case ".exit":
       process.stdin.destroy();
