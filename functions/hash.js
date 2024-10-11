@@ -19,7 +19,6 @@ export default async function handleHashCommand(...params){
             }
         });
     } catch(e){
-        
         process.stdout.write("Operation failed" + '\n');
         return;
     }

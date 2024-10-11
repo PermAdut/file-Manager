@@ -1,8 +1,16 @@
-import { userName, __filename, operatingSystem } from "./functions/constants.js";
+import {
+  userName,
+  __filename,
+  operatingSystem,
+} from "./functions/constants.js";
 import process from "node:process";
 import handleOsCommand from "./functions/os.js";
 import handleHashCommand from "./functions/hash.js";
-import { handleLSCommand, handleUPCommand } from "./functions/filesystem.js";
+import {
+  handleCDCommand,
+  handleLSCommand,
+  handleUPCommand,
+} from "./functions/filesystem.js";
 let curDir = __filename;
 
 process.stdout.write(`Welcome to the File Manager, ${userName}!` + "\n");
@@ -14,7 +22,7 @@ process.stdin.on("data", async (data) => {
   switch (command) {
     case ".exit":
       process.stdin.destroy();
-      
+
       break;
     case "os":
       await handleOsCommand(params);
@@ -27,6 +35,9 @@ process.stdin.on("data", async (data) => {
       break;
     case "up":
       curDir = await handleUPCommand(curDir);
+      break;
+    case "cd":
+      curDir = await handleCDCommand(curDir, params);
       break;
     default:
       process.stdout.write("Invalid input" + "\n");
