@@ -7,6 +7,7 @@ import process from "node:process";
 import handleOsCommand from "./functions/os.js";
 import handleHashCommand from "./functions/hash.js";
 import {
+    handleADDCommand,
   handleCDCommand,
   handleLSCommand,
   handleUPCommand,
@@ -39,6 +40,9 @@ process.stdin.on("data", async (data) => {
     case "cd":
       curDir = await handleCDCommand(curDir, params);
       break;
+    case "add":
+      await handleADDCommand(curDir, params);
+      break;  
     default:
       process.stdout.write("Invalid input" + "\n");
   }
