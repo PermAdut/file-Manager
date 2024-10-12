@@ -12,6 +12,8 @@ import {
   handleLSCommand,
   handleUPCommand,
   handleRMCommad,
+  handleCATCommand,
+  hadnleCPCommand,
 } from "./functions/filesystem.js";
 let curDir = __filename;
 
@@ -24,7 +26,6 @@ process.stdin.on("data", async (data) => {
   switch (command) {
     case ".exit":
       process.stdin.destroy();
-
       break;
     case "os":
       await handleOsCommand(params);
@@ -47,6 +48,13 @@ process.stdin.on("data", async (data) => {
     case "rm":
        await handleRMCommad(params);
        break;   
+    case "cat":
+        await handleCATCommand(params);
+        break; 
+    case "cp":
+        await hadnleCPCommand(params);
+        break;     
+         
     default:
       process.stdout.write("Invalid input" + "\n");
   }
