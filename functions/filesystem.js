@@ -98,4 +98,13 @@ async function handleADDCommand(relPath, ...params){
     }
 }
 
-export { handleLSCommand, handleUPCommand, handleCDCommand, handleADDCommand};
+async function handleRMCommad(...params){
+    const param = params[0].join(' ');
+    try{
+        await fsPromises.unlink(param)
+    } catch(err){
+        process.stdout.write("This operation can't be done!\n");
+    }
+}
+
+export { handleLSCommand, handleUPCommand, handleCDCommand, handleADDCommand, handleRMCommad};

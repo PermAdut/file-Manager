@@ -11,6 +11,7 @@ import {
   handleCDCommand,
   handleLSCommand,
   handleUPCommand,
+  handleRMCommad,
 } from "./functions/filesystem.js";
 let curDir = __filename;
 
@@ -42,7 +43,10 @@ process.stdin.on("data", async (data) => {
       break;
     case "add":
       await handleADDCommand(curDir, params);
-      break;  
+      break; 
+    case "rm":
+       await handleRMCommad(params);
+       break;   
     default:
       process.stdout.write("Invalid input" + "\n");
   }
