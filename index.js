@@ -14,6 +14,7 @@ import {
   handleRMCommad,
   handleCATCommand,
   hadnleCPCommand,
+  handleMVCommand,
 } from "./functions/filesystem.js";
 let curDir = __filename;
 
@@ -54,7 +55,15 @@ process.stdin.on("data", async (data) => {
     case "cp":
         await hadnleCPCommand(params);
         break;     
-         
+    case "mv":
+        await handleMVCommand(params);
+        break;
+    case "rn":
+        break;
+    case "compress":
+        break;
+    case "decompress":
+        break;                 
     default:
       process.stdout.write("Invalid input" + "\n");
   }

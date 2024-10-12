@@ -160,26 +160,58 @@ async function hadnleCPCommand(...params) {
   });
 }
 
-const parseArgs = (arrayPar) => {
-    const args = arrayPar;
-    let secondArgIndex = -1;
-    if (operatingSystem === "Windows_NT") {
-      secondArgIndex = args.findIndex((el, ind) => {
-        if (ind != 0) return /^[A-Za-z]:/.test(el);
-      });
-    } else {
-      secondArgIndex = args.findIndex((el, ind) => {
-        if (ind != 0) return el.startsWith(path.sep);
-      });
+async function handleMVCommand(...params) {
+  return new Promise(async (res) => {
+    const [relPath, copyPath, fileName] = parseArgs(params[0]);
+    if (relPath == -1) {
+      process.stdout.write("Error inputing\n");
+      res();
     }
-    if (secondArgIndex == -1) return [-1, -1];
-    const firstParam = args.slice(0, secondArgIndex).join(" ");
-    const fileName = path.basename(firstParam);
-    const secondParam = args.slice(secondArgIndex).join(" ");
-    console.log(fileName);
-    return [firstParam, secondParam, fileName];
-};
+    let dir;
+    try {
+      console.log(relPath);
+      await fsPromises.access(relPath, constants.F_OK);
+      dir = await fsPromises.opendir(copyPath);
 
+      const writeStream = createWriteStream(path.resolve(copyPath, fileName));
+      const readStream = createReadStream(relPath);
+      readStream.on("data", (data) => {
+        writeStream.write(data);
+      });
+      readStream.on("end", async () => {
+        readStream.close();
+        writeStream.close();
+        await fsPromises.unlink(relPath);
+        res();
+      });
+      
+    } catch (err) {
+      process.stdout.write("This operation can't be done!\n");
+      res();
+    } finally {
+      if (dir) dir.close();
+    }
+  });
+}
+
+const parseArgs = (arrayPar) => {
+  const args = arrayPar;
+  let secondArgIndex = -1;
+  if (operatingSystem === "Windows_NT") {
+    secondArgIndex = args.findIndex((el, ind) => {
+      if (ind != 0) return /^[A-Za-z]:/.test(el);
+    });
+  } else {
+    secondArgIndex = args.findIndex((el, ind) => {
+      if (ind != 0) return el.startsWith(path.sep);
+    });
+  }
+  if (secondArgIndex == -1) return [-1, -1];
+  const firstParam = args.slice(0, secondArgIndex).join(" ");
+  const fileName = path.basename(firstParam);
+  const secondParam = args.slice(secondArgIndex).join(" ");
+  return [firstParam, secondParam, fileName];
+};
 
 export {
   handleLSCommand,
@@ -189,4 +221,5 @@ export {
   handleRMCommad,
   handleCATCommand,
   hadnleCPCommand,
+  handleMVCommand,
 };
