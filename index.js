@@ -59,6 +59,7 @@ process.stdin.on("data", async (data) => {
         await handleMVCommand(params);
         break;
     case "rn":
+        // format rn path_to_file "file_name" don't have an idea how to parse it :)
         await handleRNCommand(params);
         break;
     case "compress":
