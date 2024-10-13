@@ -49,15 +49,30 @@ async function handleCATCommand(...params) {
   });
 }
 
-async function handleRNCommand(...params){
-
+async function handleRNCommand(...params) {
+  return new Promise(async (res) => {
+    try {
+      const fullParams = params[0].join(" ");
+      const firstIndex = fullParams.indexOf('"');
+      const lastIndex = fullParams.lastIndexOf('"');
+      if (firstIndex === -1 || lastIndex === -1 || lastIndex <= firstIndex) {
+        process.stdout.write(
+          "Ошибка: Имя файла должно быть заключено в кавычки.\n"
+        );
+        res();
+        return;
+      }
+      const fileName = fullParams.slice(firstIndex + 1, lastIndex).trim();
+      const pathToFile = fullParams.slice(0, firstIndex).trim();
+      await fsPromises.stat(pathToFile);
+      await fsPromises.rename(pathToFile, path.resolve(path.dirname(pathToFile), fileName));
+    } catch (err) {
+      process.stdout.write("This operation can't be done!\n");
+      res();
+    } finally {
+      res();
+    }
+  });
 }
 
-
-
-export {
-  handleADDCommand,
-  handleRMCommad,
-  handleCATCommand,
-  handleRNCommand
-};
+export { handleADDCommand, handleRMCommad, handleCATCommand, handleRNCommand };
