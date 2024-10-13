@@ -1,6 +1,7 @@
 import os from "node:os";
 import { fileURLToPath } from "node:url";
 import { dirname } from "node:path";
+import path from"node:path"
 
 const args = process.argv.slice(2)
 //const __filename = os.homedir();
@@ -16,4 +17,43 @@ function getUserName(){
     }
 }
 
-export {userName, __filename, hashAlgh, operatingSystem}
+const parseArgs = (arrayPar) => {
+    const args = arrayPar;
+    let secondArgIndex = -1;
+    if (operatingSystem === "Windows_NT") {
+      secondArgIndex = args.findIndex((el, ind) => {
+        if (ind != 0) return /^[A-Za-z]:/.test(el);
+      });
+    } else {
+      secondArgIndex = args.findIndex((el, ind) => {
+        if (ind != 0) return el.startsWith(path.sep);
+      });
+    }
+    if (secondArgIndex == -1) return [-1, -1];
+    const firstParam = args.slice(0, secondArgIndex).join(" ");
+    const fileName = path.basename(firstParam);
+    const secondParam = args.slice(secondArgIndex).join(" ");
+    return [firstParam, secondParam, fileName];
+};
+
+const parseArgsCompr = (arrayPar) => {
+    const args = arrayPar;
+    let secondArgIndex = -1;
+    if (operatingSystem === "Windows_NT") {
+      secondArgIndex = args.findIndex((el, ind) => {
+        if (ind != 0) return /^[A-Za-z]:/.test(el);
+      });
+    } else {
+      secondArgIndex = args.findIndex((el, ind) => {
+        if (ind != 0) return el.startsWith(path.sep);
+      });
+    }
+    if (secondArgIndex == -1) return [-1, -1];
+    const firstParam = args.slice(0, secondArgIndex).join(" ");
+    const firstFileName = path.basename(firstParam);
+    const secondParam = args.slice(secondArgIndex).join(" ");
+    const secondFilename = path.basename(secondParam);
+    return [firstParam, secondParam, firstFileName, secondFilename];
+}
+
+export {userName, __filename, hashAlgh, operatingSystem, parseArgs, parseArgsCompr}

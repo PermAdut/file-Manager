@@ -7,15 +7,15 @@ import process from "node:process";
 import handleOsCommand from "./functions/os.js";
 import handleHashCommand from "./functions/hash.js";
 import {
-    handleADDCommand,
-  handleCDCommand,
-  handleLSCommand,
-  handleUPCommand,
+  handleADDCommand,
   handleRMCommad,
   handleCATCommand,
-  hadnleCPCommand,
-  handleMVCommand,
+  handleRNCommand,
 } from "./functions/filesystem.js";
+import { handleCDCommand, handleLSCommand, handleUPCommand } from "./functions/dirsOperations.js";
+import { handleCompressCommand, handleDeCompressCommand } from "./functions/compress.js";
+import { hadnleCPCommand, handleMVCommand } from "./functions/copyCommands.js";
+
 let curDir = __filename;
 
 process.stdout.write(`Welcome to the File Manager, ${userName}!` + "\n");
@@ -59,10 +59,13 @@ process.stdin.on("data", async (data) => {
         await handleMVCommand(params);
         break;
     case "rn":
+        await handleRNCommand(params);
         break;
     case "compress":
+        await handleCompressCommand(params)
         break;
     case "decompress":
+      await handleDeCompressCommand(params)
         break;                 
     default:
       process.stdout.write("Invalid input" + "\n");
