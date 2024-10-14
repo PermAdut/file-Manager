@@ -1,8 +1,4 @@
-import {
-  userName,
-  __filename,
-  operatingSystem,
-} from "./functions/constants.js";
+import { userName, __filename } from "./functions/constants.js";
 import process from "node:process";
 import handleOsCommand from "./functions/os.js";
 import handleHashCommand from "./functions/hash.js";
@@ -12,8 +8,15 @@ import {
   handleCATCommand,
   handleRNCommand,
 } from "./functions/filesystem.js";
-import { handleCDCommand, handleLSCommand, handleUPCommand } from "./functions/dirsOperations.js";
-import { handleCompressCommand, handleDeCompressCommand } from "./functions/compress.js";
+import {
+  handleCDCommand,
+  handleLSCommand,
+  handleUPCommand,
+} from "./functions/dirsOperations.js";
+import {
+  handleCompressCommand,
+  handleDeCompressCommand,
+} from "./functions/compress.js";
 import { hadnleCPCommand, handleMVCommand } from "./functions/copyCommands.js";
 
 let curDir = __filename;
@@ -32,7 +35,7 @@ process.stdin.on("data", async (data) => {
       await handleOsCommand(params);
       break;
     case "hash":
-      await handleHashCommand(params);
+      await handleHashCommand(curDir, params);
       break;
     case "ls":
       await handleLSCommand(curDir);
@@ -45,29 +48,28 @@ process.stdin.on("data", async (data) => {
       break;
     case "add":
       await handleADDCommand(curDir, params);
-      break; 
+      break;
     case "rm":
-       await handleRMCommad(params);
-       break;   
+      await handleRMCommad(curDir, params);
+      break;
     case "cat":
-        await handleCATCommand(params);
-        break; 
+      await handleCATCommand(curDir, params);
+      break;
     case "cp":
-        await hadnleCPCommand(params);
-        break;     
+      await hadnleCPCommand(curDir, params);
+      break;
     case "mv":
-        await handleMVCommand(params);
-        break;
+      await handleMVCommand(curDir, params);
+      break;
     case "rn":
-        // format rn path_to_file "file_name" don't have an idea how to parse it :)
-        await handleRNCommand(params);
-        break;
+      await handleRNCommand(curDir, params);
+      break;
     case "compress":
-        await handleCompressCommand(params)
-        break;
+      await handleCompressCommand(curDir, params);
+      break;
     case "decompress":
-      await handleDeCompressCommand(params)
-        break;                 
+      await handleDeCompressCommand(curDir, params);
+      break;
     default:
       process.stdout.write("Invalid input" + "\n");
   }

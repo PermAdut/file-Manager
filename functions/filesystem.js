@@ -1,74 +1,86 @@
 import path from "node:path";
 import fsPromises from "node:fs/promises";
-import { operatingSystem, parseArgs } from "./constants.js";
-import { constants, createReadStream, createWriteStream, read } from "node:fs";
+import { exactTwoParams, extractParam } from "./constants.js";
+import { createReadStream } from "node:fs";
 
 async function handleADDCommand(relPath, ...params) {
-  let dir;
-  try {
-    const param = params[0][0];
-    const newPath = path.resolve(relPath, param);
-    dir = await fsPromises.opendir(relPath);
-    await fsPromises.writeFile(newPath, "");
-  } catch (err) {
-    process.stdout.write("This operation can't be done!\n");
-  } finally {
-    if (dir) await dir.close();
-  }
-}
-
-async function handleRMCommad(...params) {
-  try {
-    const param = params[0].join(" ");
-    await fsPromises.unlink(param);
-  } catch (err) {
-    process.stdout.write("This operation can't be done!\n");
-  }
-}
-
-async function handleCATCommand(...params) {
-  return new Promise((res) => {
-    const param = params[0].join(" ");
+  return new Promise(async (res) => {
     try {
-      const readStream = createReadStream(param);
-      readStream.on("data", (data) => {
-        process.stdout.write(data.toString());
-        if (data == null) {
-          readStream.emit("end");
-        }
-      });
-      readStream.on("end", () => {
-        process.stdout.write("\n");
-        readStream.close();
-        res();
-      });
+      const param = extractParam(params[0]);
+      const newPath = path.resolve(relPath, param);
+      await fsPromises.writeFile(newPath, "");
     } catch (err) {
-      process.stdout.write("This operation can't be done!\n");
+      process.stdout.write("Operation failed\n");
+    } finally {
       res();
     }
   });
 }
 
-async function handleRNCommand(...params) {
+async function handleRMCommad(relPath, ...params) {
   return new Promise(async (res) => {
     try {
-      const fullParams = params[0].join(" ");
-      const firstIndex = fullParams.indexOf('"');
-      const lastIndex = fullParams.lastIndexOf('"');
-      if (firstIndex === -1 || lastIndex === -1 || lastIndex <= firstIndex) {
-        process.stdout.write(
-          "Ошибка: Имя файла должно быть заключено в кавычки.\n"
-        );
-        res();
-        return;
-      }
-      const fileName = fullParams.slice(firstIndex + 1, lastIndex).trim();
-      const pathToFile = fullParams.slice(0, firstIndex).trim();
-      await fsPromises.stat(pathToFile);
-      await fsPromises.rename(pathToFile, path.resolve(path.dirname(pathToFile), fileName));
+      const param = extractParam(params[0]);
+      const newPath = path.resolve(relPath, param);
+      await fsPromises.unlink(newPath);
     } catch (err) {
-      process.stdout.write("This operation can't be done!\n");
+      if (err.code == "ENOENT") {
+        process.stdout.write("Invalid input\n");
+      } else {
+        process.stdout.write("Operation failed\n");
+      }
+    } finally {
       res();
+    }
+  });
+}
+
+async function handleCATCommand(relPath, ...params) {
+  return new Promise((res) => {
+    const param = extractParam(params[0]);
+    const newPath = path.resolve(relPath, param);
+    const readStream = createReadStream(newPath);
+    readStream.on("data", (data) => {
+      process.stdout.write(data.toString());
+      if (data == null) {
+        readStream.emit("end");
+      }
+    });
+    readStream.on("end", () => {
+      process.stdout.write("\n");
+      readStream.close();
+      res();
+    });
+    readStream.on("error", (err) => {
+      if (err.code == "ENOENT") {
+        process.stdout.write("Invalid input\n");
+      } else {
+        process.stdout.write("Operation failed\n");
+      }
+      readStream.close();
+      res();
+    });
+  });
+}
+
+async function handleRNCommand(relPath, ...params) {
+  return new Promise(async (res) => {
+    try {
+      const [fullPathToFile, fullDestPath] = exactTwoParams(params, relPath);
+      if (fullDestPath == -1) {
+        process.stdout.write("Invalid input\n");
+        res();
+      } else {
+        await fsPromises.stat(fullPathToFile);
+        await fsPromises.rename(fullPathToFile, fullDestPath);
+        res();
+      }
+    } catch (err) {
+      if (err.code == "ENOENT") {
+        process.stdout.write("Invalid input\n");
+      } else {
+        process.stdout.write("Operation failed\n");
+      }
     } finally {
       res();
     }

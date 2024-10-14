@@ -1,23 +1,26 @@
 import path from "node:path";
 import fsPromises from "node:fs/promises";
-import { parseArgs } from "./constants.js";
+import { exactTwoParams } from "./constants.js";
 import { constants, createReadStream, createWriteStream } from "node:fs";
 
-async function hadnleCPCommand(...params) {
+async function hadnleCPCommand(relPath, ...params) {
   return new Promise(async (res) => {
-    const [relPath, copyPath, fileName] = parseArgs(params[0]);
-    if (relPath == -1) {
-      process.stdout.write("Error inputing\n");
-      res();
-    }
     let dir;
     try {
-      console.log(relPath);
-      await fsPromises.access(relPath, constants.F_OK);
-      dir = await fsPromises.opendir(copyPath);
+      const [filePath, direntPath] = exactTwoParams(params, relPath);
+      if (filePath == -1) {
+        process.stdout.write("Invalid input\n");
+        res();
+      }
+      const dirPath = path.resolve(relPath, direntPath);
 
-      const writeStream = createWriteStream(path.resolve(copyPath, fileName));
-      const readStream = createReadStream(relPath);
+      await fsPromises.access(filePath, constants.F_OK);
+      dir = await fsPromises.opendir(dirPath);
+
+      const writeStream = createWriteStream(
+        path.resolve(dirPath, path.basename(filePath))
+      );
+      const readStream = createReadStream(filePath);
       readStream.on("data", (data) => {
         writeStream.write(data);
       });
@@ -26,8 +29,20 @@ async function hadnleCPCommand(...params) {
         writeStream.close();
         res();
       });
+      readStream.on("error", () => {
+        process.stdout.write("Operation failed\n");
+        res();
+      });
+      writeStream.on("error", () => {
+        process.stdout.write("Operation failed\n");
+        res();
+      });
     } catch (err) {
-      process.stdout.write("This operation can't be done!\n");
+      if (err.code == "ENOENT") {
+        process.stdout.write("Invalid input\n");
+      } else {
+        process.stdout.write("Operation failed\n");
+      }
       res();
     } finally {
       if (dir) dir.close();
@@ -35,32 +50,45 @@ async function hadnleCPCommand(...params) {
   });
 }
 
-async function handleMVCommand(...params) {
+async function handleMVCommand(relPath, ...params) {
+  let dir;
   return new Promise(async (res) => {
-    const [relPath, copyPath, fileName] = parseArgs(params[0]);
-    if (relPath == -1) {
-      process.stdout.write("Error inputing\n");
-      res();
-    }
-    let dir;
     try {
-      console.log(relPath);
-      await fsPromises.access(relPath, constants.F_OK);
-      dir = await fsPromises.opendir(copyPath);
-
-      const writeStream = createWriteStream(path.resolve(copyPath, fileName));
-      const readStream = createReadStream(relPath);
+      const [filePath, direntPath] = exactTwoParams(params, relPath);
+      if (filePath == -1) {
+        process.stdout.write("Invalid input\n");
+        res();
+      }
+      const dirPath = path.resolve(relPath, direntPath);
+      await fsPromises.access(filePath, constants.F_OK);
+      dir = await fsPromises.opendir(dirPath);
+      const writeStream = createWriteStream(
+        path.resolve(dirPath, path.basename(filePath))
+      );
+      const readStream = createReadStream(filePath);
       readStream.on("data", (data) => {
         writeStream.write(data);
       });
       readStream.on("end", async () => {
         readStream.close();
         writeStream.close();
-        await fsPromises.unlink(relPath);
+        await fsPromises.unlink(filePath);
+        res();
+      });
+      readStream.on("error", () => {
+        process.stdout.write("Operation failed\n");
+        res();
+      });
+      writeStream.on("error", () => {
+        process.stdout.write("Operation failed\n");
         res();
       });
     } catch (err) {
-      process.stdout.write("This operation can't be done!\n");
+      if (err.code == "ENOENT") {
+        process.stdout.write("Invalid input\n");
+      } else {
+        process.stdout.write("Operation failed\n");
+      }
       res();
     } finally {
       if (dir) dir.close();

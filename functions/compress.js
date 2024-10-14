@@ -1,64 +1,89 @@
-import { dirname } from "node:path";
-import { parseArgsCompr } from "./constants.js";
-import fsPromises from "node:fs/promises"
-import zlib from "node:zlib"
+import { dirname, resolve } from "node:path";
+import fsPromises from "node:fs/promises";
+import zlib from "node:zlib";
 import { createReadStream, createWriteStream } from "node:fs";
+import { exactTwoParams } from "./constants.js";
 
-
-async function handleCompressCommand(...params) {
+async function handleCompressCommand(relPath, ...params) {
   return new Promise(async (res) => {
-    const [relPath, copyPath, fileName, zipName] = parseArgsCompr(params[0]);
-    if (relPath == -1) {
-      process.stdout.write("Error inputing\n");
+    const [filePath, zipName] = exactTwoParams(params, relPath);
+    const zipPath = resolve(relPath, zipName);
+    if (filePath == -1) {
+      process.stdout.write("Invalid input\n");
       res();
     }
     let dir;
-    try{
-        await fsPromises.access(relPath);
-        dir = await fsPromises.opendir(dirname(copyPath));
-        const compress = zlib.createBrotliCompress();
-        const readStream = createReadStream(relPath);
-        const writeStream = createWriteStream(copyPath);
-        const stream = readStream.pipe(compress).pipe(writeStream);
-        stream.on('finish', ()=>{
-            res();
-        })
-    } catch(err){
-        process.stdout.write("This operation can't be done!\n");
+    try {
+      await fsPromises.access(filePath);
+      dir = await fsPromises.opendir(dirname(zipPath));
+      const compress = zlib.createBrotliCompress();
+      const readStream = createReadStream(filePath);
+      const writeStream = createWriteStream(zipPath);
+      const stream = readStream.pipe(compress).pipe(writeStream);
+      stream.on("finish", () => {
         res();
-    } finally{
-        if(dir) await dir.close()
+      });
+      stream.on("error", () => {
+        process.stdout.write("Operation failed\n");
+      });
+      readStream.on("error", () => {
+        process.stdout.write("Operation failed\n");
+      });
+      writeStream.on("error", () => {
+        process.stdout.write("Operation failed\n");
+      });
+    } catch (err) {
+      if (err.code == "ENOENT") {
+        process.stdout.write("Invalid input\n");
+      } else {
+        process.stdout.write("Operation failed\n");
+      }
+    } finally {
+      if (dir) await dir.close();
+      res();
     }
-
   });
 }
 
-async function handleDeCompressCommand(...params) {
-    return new Promise(async (res) => {
-        const [relPath, copyPath, fileName, zipName] = parseArgsCompr(params[0]);
-        if (relPath == -1) {
-          process.stdout.write("Error inputing\n");
-          res();
-        }
-        let dir;
-        try{
-            await fsPromises.access(relPath);
-            dir = await fsPromises.opendir(dirname(copyPath));
-            const compress = zlib.createBrotliDecompress();
-            const readStream = createReadStream(relPath);
-            const writeStream = createWriteStream(copyPath);
-            const stream = readStream.pipe(compress).pipe(writeStream);
-            stream.on('finish', ()=>{
-                res();
-            })
-        } catch(err){
-            process.stdout.write("This operation can't be done!\n");
-            res();
-        } finally{
-            if(dir) await dir.close()
-        }
-    
+async function handleDeCompressCommand(relPath, ...params) {
+  return new Promise(async (res) => {
+    const [filePath, unzipName] = exactTwoParams(params, relPath);
+    const unzipPath = resolve(relPath, unzipName);
+    if (filePath == -1) {
+      process.stdout.write("Invalid input\n");
+      res();
+    }
+    let dir;
+    try {
+      await fsPromises.access(filePath);
+      dir = await fsPromises.opendir(dirname(unzipName));
+      const compress = zlib.createBrotliDecompress();
+      const readStream = createReadStream(filePath);
+      const writeStream = createWriteStream(unzipName);
+      const stream = readStream.pipe(compress).pipe(writeStream);
+      stream.on("finish", () => {
+        res();
       });
+      stream.on("error", () => {
+        process.stdout.write("Operation failed\n");
+      });
+      readStream.on("error", () => {
+        process.stdout.write("Operation failed\n");
+      });
+      writeStream.on("error", () => {
+        process.stdout.write("Operation failed\n");
+      });
+    } catch (err) {
+      if (err.code == "ENOENT") {
+        process.stdout.write("Invalid input\n");
+      } else {
+        process.stdout.write("Operation failed\n");
+      }
+    } finally {
+      if (dir) await dir.close();
+      res();
+    }
+  });
 }
 
 export { handleCompressCommand, handleDeCompressCommand };
