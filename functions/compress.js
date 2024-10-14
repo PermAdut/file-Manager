@@ -6,32 +6,33 @@ import { exactTwoParams } from "./constants.js";
 
 async function handleCompressCommand(relPath, ...params) {
   return new Promise(async (res) => {
-    const [filePath, zipName] = exactTwoParams(params, relPath);
-    const zipPath = resolve(relPath, zipName);
-    if (filePath == -1) {
-      process.stdout.write("Invalid input\n");
-      res();
-    }
     let dir;
     try {
-      await fsPromises.access(filePath);
-      dir = await fsPromises.opendir(dirname(zipPath));
-      const compress = zlib.createBrotliCompress();
-      const readStream = createReadStream(filePath);
-      const writeStream = createWriteStream(zipPath);
-      const stream = readStream.pipe(compress).pipe(writeStream);
-      stream.on("finish", () => {
+      const [filePath, zipName] = exactTwoParams(params, relPath);
+      if (filePath == -1) {
+        process.stdout.write("Invalid input\n");
         res();
-      });
-      stream.on("error", () => {
-        process.stdout.write("Operation failed\n");
-      });
-      readStream.on("error", () => {
-        process.stdout.write("Operation failed\n");
-      });
-      writeStream.on("error", () => {
-        process.stdout.write("Operation failed\n");
-      });
+      } else {
+        const zipPath = resolve(relPath, zipName);
+        await fsPromises.access(filePath);
+        dir = await fsPromises.opendir(dirname(zipPath));
+        const compress = zlib.createBrotliCompress();
+        const readStream = createReadStream(filePath);
+        const writeStream = createWriteStream(zipPath);
+        const stream = readStream.pipe(compress).pipe(writeStream);
+        stream.on("finish", () => {
+          res();
+        });
+        stream.on("error", () => {
+          process.stdout.write("Operation failed\n");
+        });
+        readStream.on("error", () => {
+          process.stdout.write("Operation failed\n");
+        });
+        writeStream.on("error", () => {
+          process.stdout.write("Operation failed\n");
+        });
+      }
     } catch (err) {
       if (err.code == "ENOENT") {
         process.stdout.write("Invalid input\n");
@@ -46,33 +47,34 @@ async function handleCompressCommand(relPath, ...params) {
 }
 
 async function handleDeCompressCommand(relPath, ...params) {
+  let dir;
   return new Promise(async (res) => {
-    const [filePath, unzipName] = exactTwoParams(params, relPath);
-    const unzipPath = resolve(relPath, unzipName);
-    if (filePath == -1) {
-      process.stdout.write("Invalid input\n");
-      res();
-    }
-    let dir;
     try {
-      await fsPromises.access(filePath);
-      dir = await fsPromises.opendir(dirname(unzipName));
-      const compress = zlib.createBrotliDecompress();
-      const readStream = createReadStream(filePath);
-      const writeStream = createWriteStream(unzipName);
-      const stream = readStream.pipe(compress).pipe(writeStream);
-      stream.on("finish", () => {
+      const [filePath, unzipName] = exactTwoParams(params, relPath);
+      if (filePath == -1) {
+        process.stdout.write("Invalid input\n");
         res();
-      });
-      stream.on("error", () => {
-        process.stdout.write("Operation failed\n");
-      });
-      readStream.on("error", () => {
-        process.stdout.write("Operation failed\n");
-      });
-      writeStream.on("error", () => {
-        process.stdout.write("Operation failed\n");
-      });
+      } else {
+        const unzipPath = resolve(relPath, unzipName);
+        await fsPromises.access(filePath);
+        dir = await fsPromises.opendir(dirname(unzipName));
+        const compress = zlib.createBrotliDecompress();
+        const readStream = createReadStream(filePath);
+        const writeStream = createWriteStream(unzipName);
+        const stream = readStream.pipe(compress).pipe(writeStream);
+        stream.on("finish", () => {
+          res();
+        });
+        stream.on("error", () => {
+          process.stdout.write("Operation failed\n");
+        });
+        readStream.on("error", () => {
+          process.stdout.write("Operation failed\n");
+        });
+        writeStream.on("error", () => {
+          process.stdout.write("Operation failed\n");
+        });
+      }
     } catch (err) {
       if (err.code == "ENOENT") {
         process.stdout.write("Invalid input\n");

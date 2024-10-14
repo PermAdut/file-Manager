@@ -11,32 +11,33 @@ async function hadnleCPCommand(relPath, ...params) {
       if (filePath == -1) {
         process.stdout.write("Invalid input\n");
         res();
+      } else {
+        const dirPath = path.resolve(relPath, direntPath);
+
+        await fsPromises.access(filePath, constants.F_OK);
+        dir = await fsPromises.opendir(dirPath);
+
+        const writeStream = createWriteStream(
+          path.resolve(dirPath, path.basename(filePath))
+        );
+        const readStream = createReadStream(filePath);
+        readStream.on("data", (data) => {
+          writeStream.write(data);
+        });
+        readStream.on("end", () => {
+          readStream.close();
+          writeStream.close();
+          res();
+        });
+        readStream.on("error", () => {
+          process.stdout.write("Operation failed\n");
+          res();
+        });
+        writeStream.on("error", () => {
+          process.stdout.write("Operation failed\n");
+          res();
+        });
       }
-      const dirPath = path.resolve(relPath, direntPath);
-
-      await fsPromises.access(filePath, constants.F_OK);
-      dir = await fsPromises.opendir(dirPath);
-
-      const writeStream = createWriteStream(
-        path.resolve(dirPath, path.basename(filePath))
-      );
-      const readStream = createReadStream(filePath);
-      readStream.on("data", (data) => {
-        writeStream.write(data);
-      });
-      readStream.on("end", () => {
-        readStream.close();
-        writeStream.close();
-        res();
-      });
-      readStream.on("error", () => {
-        process.stdout.write("Operation failed\n");
-        res();
-      });
-      writeStream.on("error", () => {
-        process.stdout.write("Operation failed\n");
-        res();
-      });
     } catch (err) {
       if (err.code == "ENOENT") {
         process.stdout.write("Invalid input\n");
@@ -58,31 +59,32 @@ async function handleMVCommand(relPath, ...params) {
       if (filePath == -1) {
         process.stdout.write("Invalid input\n");
         res();
+      } else {
+        const dirPath = path.resolve(relPath, direntPath);
+        await fsPromises.access(filePath, constants.F_OK);
+        dir = await fsPromises.opendir(dirPath);
+        const writeStream = createWriteStream(
+          path.resolve(dirPath, path.basename(filePath))
+        );
+        const readStream = createReadStream(filePath);
+        readStream.on("data", (data) => {
+          writeStream.write(data);
+        });
+        readStream.on("end", async () => {
+          readStream.close();
+          writeStream.close();
+          await fsPromises.unlink(filePath);
+          res();
+        });
+        readStream.on("error", () => {
+          process.stdout.write("Operation failed\n");
+          res();
+        });
+        writeStream.on("error", () => {
+          process.stdout.write("Operation failed\n");
+          res();
+        });
       }
-      const dirPath = path.resolve(relPath, direntPath);
-      await fsPromises.access(filePath, constants.F_OK);
-      dir = await fsPromises.opendir(dirPath);
-      const writeStream = createWriteStream(
-        path.resolve(dirPath, path.basename(filePath))
-      );
-      const readStream = createReadStream(filePath);
-      readStream.on("data", (data) => {
-        writeStream.write(data);
-      });
-      readStream.on("end", async () => {
-        readStream.close();
-        writeStream.close();
-        await fsPromises.unlink(filePath);
-        res();
-      });
-      readStream.on("error", () => {
-        process.stdout.write("Operation failed\n");
-        res();
-      });
-      writeStream.on("error", () => {
-        process.stdout.write("Operation failed\n");
-        res();
-      });
     } catch (err) {
       if (err.code == "ENOENT") {
         process.stdout.write("Invalid input\n");

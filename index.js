@@ -27,53 +27,58 @@ process.stdout.write(`You are currently in ${curDir}` + "\n");
 process.stdin.on("data", async (data) => {
   const params = data.toString().trim().split(" ").slice(1);
   const command = data.toString().trim().split(" ")[0];
-  switch (command) {
-    case ".exit":
-      process.stdin.destroy();
-      break;
-    case "os":
-      await handleOsCommand(params);
-      break;
-    case "hash":
-      await handleHashCommand(curDir, params);
-      break;
-    case "ls":
-      await handleLSCommand(curDir);
-      break;
-    case "up":
-      curDir = await handleUPCommand(curDir);
-      break;
-    case "cd":
-      curDir = await handleCDCommand(curDir, params);
-      break;
-    case "add":
-      await handleADDCommand(curDir, params);
-      break;
-    case "rm":
-      await handleRMCommad(curDir, params);
-      break;
-    case "cat":
-      await handleCATCommand(curDir, params);
-      break;
-    case "cp":
-      await hadnleCPCommand(curDir, params);
-      break;
-    case "mv":
-      await handleMVCommand(curDir, params);
-      break;
-    case "rn":
-      await handleRNCommand(curDir, params);
-      break;
-    case "compress":
-      await handleCompressCommand(curDir, params);
-      break;
-    case "decompress":
-      await handleDeCompressCommand(curDir, params);
-      break;
-    default:
-      process.stdout.write("Invalid input" + "\n");
+  try {
+    switch (command) {
+      case ".exit":
+        process.stdin.destroy();
+        break;
+      case "os":
+        await handleOsCommand(params);
+        break;
+      case "hash":
+        await handleHashCommand(curDir, params);
+        break;
+      case "ls":
+        await handleLSCommand(curDir);
+        break;
+      case "up":
+        curDir = await handleUPCommand(curDir);
+        break;
+      case "cd":
+        curDir = await handleCDCommand(curDir, params);
+        break;
+      case "add":
+        await handleADDCommand(curDir, params);
+        break;
+      case "rm":
+        await handleRMCommad(curDir, params);
+        break;
+      case "cat":
+        await handleCATCommand(curDir, params);
+        break;
+      case "cp":
+        await hadnleCPCommand(curDir, params);
+        break;
+      case "mv":
+        await handleMVCommand(curDir, params);
+        break;
+      case "rn":
+        await handleRNCommand(curDir, params);
+        break;
+      case "compress":
+        await handleCompressCommand(curDir, params);
+        break;
+      case "decompress":
+        await handleDeCompressCommand(curDir, params);
+        break;
+      default:
+        process.stdout.write("Invalid input" + "\n");
+    }
+  } catch (error) {
+    process.stderr.write(`Error: ${error.message}\n`);
+  } finally {
+    process.stdout.write(`You are currently in ${curDir}` + "\n");
   }
-  process.stdout.write(`You are currently in ${curDir}` + "\n");
 });
 
 process.stdin.on("close", () => {

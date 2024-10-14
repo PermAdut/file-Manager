@@ -4,8 +4,8 @@ import { dirname } from "node:path";
 import path from "node:path";
 
 const args = process.argv.slice(2);
-const __filename = os.homedir();
-//const __filename = fileURLToPath(dirname(import.meta.url)); // apply this for testing
+//const __filename = os.homedir();
+const __filename = fileURLToPath(dirname(import.meta.url)); // apply this for testing
 const userName = getUserName();
 const hashAlgh = "sha256";
 const operatingSystem = os.type();
