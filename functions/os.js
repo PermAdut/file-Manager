@@ -31,7 +31,7 @@ async function handleOsCommand(...params){
 
             case "--username":
                 process.stdout.write(`COMMAND os --username:` + '\n');
-                process.stdout.write(`Username: ${username} + '\n`);
+                process.stdout.write(`Username: ${username}` + '\n');
                 break;
             case "--architecture":
                 process.stdout.write(`COMMAND os --architecture:` + '\n');
